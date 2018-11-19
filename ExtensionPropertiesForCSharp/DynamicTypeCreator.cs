@@ -40,7 +40,7 @@ namespace ExtensionPropertiesForCSharp
             //Since I want the usage of the extension properties to be easy I refrained from the idea 
             //to have the programmer instantiate the wrapper and prefer to let it be done only temporary if needed,
             //ie if it is built (like here) and later if the 'Tag' is accessed.
-            //Sad thing is if I go with option (I), that is using no id, and check the types in my ExtendIT assembly
+            //Sad thing is if I go with option (II), that is using no id, and check the types in my ExtendIT assembly
             //I need to 'make them generic' first. 
             //At least I found no other way yet to get even the value of a static member, although I can get any FieldInfo, MethodInfo etc.
             //But to make a type/instance generic that already embeds a core I need to know the type of that core.
@@ -49,8 +49,8 @@ namespace ExtensionPropertiesForCSharp
             //So most unelegantly right now while building the wrapper I add the type of the core to each id 
             //(see: DynamicTypeCreator.GetTypeBuilder) 
             //and later while checking the types in ExtendIT make only those types generic that contain the fitting type in their name.
-            //Im still looking for a good idea here. This Problem of course only arises if I choose to go with option (I).
-            //So option (II), using an id, seems the only viable option so far.
+            //Im still looking for a good idea here. This Problem of course only arises if I choose to go with option (II).
+            //So option (I), using an id, seems the only viable option so far.
 
             Type genericType = type.MakeGenericType(new[] { typeof(T) });
             FieldInfo fi = genericType.GetField("typeOfGenericParameter", BindingFlags.Static | BindingFlags.NonPublic);
