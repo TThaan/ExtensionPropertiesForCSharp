@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 namespace ExtensionPropertiesForCSharp
 {
     class SchemaForDynamicType<K> : IExtendable<K>
-    {        /// <summary>
-             /// Just to show how the dynamically created type looks like.
-             /// </summary>
+    {        
+        /// <summary>
+        /// Just to show how the dynamically created type looks like.
+        /// </summary>
 
         SchemaForDynamicType() { }
 

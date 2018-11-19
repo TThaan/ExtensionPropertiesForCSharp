@@ -23,7 +23,6 @@ namespace ExtensionPropertiesForCSharp
             ConstructorBuilder constructor = tb.DefineDefaultConstructor(MethodAttributes.Public);
 
             FieldBuilder fb_typeOfGenericParameter = tb.DefineField("typeOfGenericParameter", typeof(Type), FieldAttributes.Private | FieldAttributes.Static);
-            //setValue here?
             FieldBuilder fb_instance = tb.DefineField("instance", tb, FieldAttributes.Private | FieldAttributes.Static);
             FieldBuilder fb_tag = tb.DefineField("tag", typeof(object), FieldAttributes.Private);
             FieldBuilder fb_cell = tb.DefineField("cell", K.MakeArrayType(), FieldAttributes.Private);
@@ -36,15 +35,9 @@ namespace ExtensionPropertiesForCSharp
             MethodBuilder mb_Bind = GetMethodBuider_Bind(tb, K, fb_cell);
 
             Type type = tb.CreateType();
-
-            FieldInfo fi_1 = type.GetField("typeOfGenericParameter", BindingFlags.Static | BindingFlags.NonPublic);
-            //fi_1.SetValue(type, typeof(T));
-            //var v1 = fi_1.GetValue(type);
-
             Type genericType = type.MakeGenericType(new[] { typeof(T) });
-            FieldInfo fi_2 = genericType.GetField("typeOfGenericParameter", BindingFlags.Static | BindingFlags.NonPublic);
-            fi_2.SetValue(genericType, typeof(T));
-            var v2 = fi_2.GetValue(type);
+            FieldInfo fi = genericType.GetField("typeOfGenericParameter", BindingFlags.Static | BindingFlags.NonPublic);
+            fi.SetValue(genericType, typeof(T));
             object instance = GetInstance<T>(type);
 
             IExtendable<T> IExtendedObject = (IExtendable<T>)instance;
