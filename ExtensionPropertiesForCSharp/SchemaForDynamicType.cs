@@ -6,16 +6,20 @@ using System.Threading.Tasks;
 
 namespace ExtensionPropertiesForCSharp
 {
-    class SchemaForDynamicType<K> : IExtendable<K>
-    {        
-        /// <summary>
-        /// Just to show how the dynamically created type looks like.
-        /// </summary>
+    /// <summary>
+    /// Just to show how the dynamically created type looks like.
+    /// </summary>
 
-        SchemaForDynamicType() { }
+    class GenericParameterofSingleton
+    {
+        protected static Type typeOfGenericParameter;
+    }
 
-        static Type typeOfGenericParameter;
-        static SchemaForDynamicType<K> instance;
+    class DynamicSingleton<K> : GenericParameterofSingleton, IExtendable<K>
+    {
+        DynamicSingleton() { }
+
+        static DynamicSingleton<K> instance;
         K[] cell;
         object tag;
 
@@ -23,11 +27,11 @@ namespace ExtensionPropertiesForCSharp
         public object Tag { get { return tag; } set { tag = value; } }
         public Type TypeOfGenericParameter { get { return typeOfGenericParameter; } }
 
-        public static SchemaForDynamicType<K> Instantiate()
+        public static DynamicSingleton<K> Instantiate()
         {
             if (instance == null)
             {
-                instance = new SchemaForDynamicType<K>();
+                instance = new DynamicSingleton<K>();
                 instance.cell = new K[1];
                 typeOfGenericParameter = typeof(K);
             }
