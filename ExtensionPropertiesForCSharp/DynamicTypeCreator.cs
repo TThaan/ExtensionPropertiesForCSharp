@@ -15,14 +15,15 @@ namespace ExtensionPropertiesForCSharp
 
         public static ref T ExtensionOf<T>(T core, string id = default)
         {
-            if (ab == null) { ab = BuildAssemblyAndModule(); }
+            if (ab == null) { ab = BuildAssemblyAndModule(); }  //Into constructor of DynamicTypeCreator!
+
+            FieldBuilder fb_typeOfGenericParameter;
+            Type baseClass = CreateBaseClass(core, id, out fb_typeOfGenericParameter);
 
             GenericTypeParameterBuilder K;
-            TypeBuilder tb = GetTypeBuilder(id, out K, typeof(T));
-
+            TypeBuilder tb = GetTypeBuilder(id, out K, typeof(T), baseClass);
             ConstructorBuilder constructor = tb.DefineDefaultConstructor(MethodAttributes.Public);
 
-            FieldBuilder fb_typeOfGenericParameter = tb.DefineField("typeOfGenericParameter", typeof(Type), FieldAttributes.Private | FieldAttributes.Static);
             FieldBuilder fb_instance = tb.DefineField("instance", tb, FieldAttributes.Private | FieldAttributes.Static);
             FieldBuilder fb_tag = tb.DefineField("tag", typeof(object), FieldAttributes.Private);
             FieldBuilder fb_cell = tb.DefineField("cell", K.MakeArrayType(), FieldAttributes.Private);
@@ -34,40 +35,33 @@ namespace ExtensionPropertiesForCSharp
             MethodBuilder mb_Instantiate = GetMethodBuilder_Instantiate(tb, K, constructor, fb_instance, fb_cell);
             MethodBuilder mb_Bind = GetMethodBuider_Bind(tb, K, fb_cell);
 
-            Type type = tb.CreateType();
-
-            //Now here we come to my biggest problem right now.
-            //Since I want the usage of the extension properties to be easy I refrained from the idea 
-            //to have the programmer instantiate the wrapper and prefer to let it be done only temporary if needed,
-            //ie if it is built (like here) and later if the 'Tag' is accessed.
-            //Sad thing is if I go with option (II), that is using no id, and check the types in my ExtendIT assembly
-            //I need to 'make them generic' first. 
-            //At least I found no other way yet to get even the value of a static member, although I can get any FieldInfo, MethodInfo etc.
-            //But to make a type/instance generic that already embeds a core I need to know the type of that core.
-            //If I take the wrong type it seems (all members of) the wrapper gets reset (to default).
-
-            //So most unelegantly right now while building the wrapper I add the type of the core to each id 
-            //(see: DynamicTypeCreator.GetTypeBuilder) 
-            //and later while checking the types in ExtendIT make only those types generic that contain the fitting type in their name.
-            //Im still looking for a good idea here. This Problem of course only arises if I choose to go with option (II).
-            //So option (I), using an id, seems the only viable option so far.
-
+            Type type = tb.CreateType();            
             Type genericType = type.MakeGenericType(new[] { typeof(T) });
-            FieldInfo fi = genericType.GetField("typeOfGenericParameter", BindingFlags.Static | BindingFlags.NonPublic);
-            fi.SetValue(genericType, typeof(T));
-            object instance = GetInstance<T>(type);
+            /*
+            MemberInfo[] mi_All = genericType.GetMembers();
+            FieldInfo[] fi_All = genericType.GetFields();
+            FieldInfo fi = genericType.GetField("typeOfGenericParameter", BindingFlags.Static);
+            //fi.GetValue(genericType);
+            PropertyInfo[] pi_All = genericType.GetProperties();
+            PropertyInfo pi = genericType.GetProperty("TypeOfGenericParameter");
+            Console.WriteLine(pi.GetValue(genericType));
+            */
+            dynamic instance = GetInstance<T>(type);
+            //Console.WriteLine(instance.TypeOfGenericParameter);
 
             IExtendable<T> IExtendedObject = (IExtendable<T>)instance;
             IExtendedObject.Cell[0] = core;
+            //Console.WriteLine(IExtendedObject.TypeOfGenericParameter);
             return ref IExtendedObject.GetReferenceToCore(core);
         }
+
         public static object GetExtendedObject<T>(T core, string id = default)
         {
             if (id == default)
             {
                 string s = typeof(T).Name.ToString();
                 var allTypes = AssemblyBuilder.GetTypes();
-                var types = AssemblyBuilder.GetTypes().Where(x => x.Name.Contains($"{typeof(T).Name.ToString()}Extended"));
+                var types = AssemblyBuilder.GetTypes().Where(x => x.Name.Contains($"{typeof(T).Name.ToString()}Extended") && !x.Name.Contains($"BaseOf"));
 
                 foreach (Type type in types)
                 {
@@ -96,7 +90,6 @@ namespace ExtensionPropertiesForCSharp
             MethodInfo instantiate = genericType.GetMethod("Instantiate");
             return instantiate.Invoke(genericType, null);
         }
-
         
         private static AssemblyBuilder BuildAssemblyAndModule()
         {
@@ -105,14 +98,32 @@ namespace ExtensionPropertiesForCSharp
             mb = ab.DefineDynamicModule("ExtendedIT_Module", true);
             return ab;
         }
-        private static TypeBuilder GetTypeBuilder(string id, out GenericTypeParameterBuilder K, Type genericType)
+
+        private static Type CreateBaseClass<T>(T core, string id, out FieldBuilder fb_typeOfGenericParameter)
+        {
+            TypeBuilder tb = GetTypeBuilder_Base(id, typeof(T));
+            fb_typeOfGenericParameter = tb.DefineField("typeOfGenericParameter", typeof(Type), FieldAttributes.Public | FieldAttributes.Static);     //kein protected vorhanden, stattdessen: Assembly a.o.
+
+            Type type = tb.CreateType();
+            return type;
+        }
+
+        private static TypeBuilder GetTypeBuilder(string id, out GenericTypeParameterBuilder K, Type genericType, Type baseClass)
         {
             if (id == default) { id = $"{genericType.Name}Extended_{counter}"; }
             else { id = $"{id}_{genericType.Name}Extended"; }
             counter++;
-            TypeBuilder tb = mb.DefineType(id, TypeAttributes.Public);
+            TypeBuilder tb = mb.DefineType(id, TypeAttributes.Class | TypeAttributes.Public, baseClass);
             tb.AddInterfaceImplementation(typeof(IExtendable<>));
             K = tb.DefineGenericParameters(new[] { "K" })[0];
+            return tb;
+        }
+        private static TypeBuilder GetTypeBuilder_Base(string id, Type genericType)
+        {
+            if (id == default) { id = $"BaseOf{genericType.Name}Extended_{counter}"; }
+            else { id = $"BaseOf{id}_{genericType.Name}Extended"; }
+
+            TypeBuilder tb = mb.DefineType(id, TypeAttributes.Class);
             return tb;
         }
 
