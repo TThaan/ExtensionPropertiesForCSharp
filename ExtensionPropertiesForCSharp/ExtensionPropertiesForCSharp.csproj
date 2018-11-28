@@ -49,6 +49,7 @@
     <Compile Include="IExtendable.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Schema02ForDynamicTypes.cs" />
     <Compile Include="SchemaForDynamicType.cs" />
   </ItemGroup>
   <ItemGroup>

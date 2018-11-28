@@ -7,13 +7,15 @@ using System.Threading.Tasks;
 namespace ExtensionPropertiesForCSharp
 {
     /// <summary>
-    /// Just to show how the dynamically created type looks like.
+    /// Just to show how the dynamically created types look like.
     /// </summary>
+
 
     class GenericParameterofSingleton
     {
         protected static Type typeOfGenericParameter;
     }
+
 
     class DynamicSingleton<K> : GenericParameterofSingleton, IExtendable<K>
     {

@@ -41,11 +41,12 @@ namespace ExtensionPropertiesForCSharp
             MemberInfo[] mi_All = genericType.GetMembers();
             FieldInfo[] fi_All = genericType.GetFields();
             FieldInfo fi = genericType.GetField("typeOfGenericParameter", BindingFlags.Static);
-            //fi.GetValue(genericType);
+            //fi.GetValue(genericType);*/
+
             PropertyInfo[] pi_All = genericType.GetProperties();
             PropertyInfo pi = genericType.GetProperty("TypeOfGenericParameter");
-            Console.WriteLine(pi.GetValue(genericType));
-            */
+            //Console.WriteLine(pi.GetValue(genericType));
+            
             dynamic instance = GetInstance<T>(type);
             //Console.WriteLine(instance.TypeOfGenericParameter);
 
@@ -84,7 +85,7 @@ namespace ExtensionPropertiesForCSharp
             }
             throw new ArgumentException("You were not supposed to reach this line of code!");
         }
-        private static object GetInstance<T>(Type type)
+        private static object GetInstance<T>(Type type)     //object vs typebuilder
         {
             Type genericType = type.MakeGenericType(new[] { typeof(T) });
             MethodInfo instantiate = genericType.GetMethod("Instantiate");

@@ -1,5 +1,7 @@
 ﻿
 
+using System;
+
 namespace ExtensionPropertiesForCSharp
 {
     static class Extension_Methods
