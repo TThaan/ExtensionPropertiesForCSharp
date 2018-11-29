@@ -8,7 +8,7 @@ namespace ExtensionPropertiesForCSharp
     {
         public static object Tag<T>(this T core, object value = default, string id = default)
         {
-            dynamic extendedObject = DynamicTypeCreator.GetExtendedObject(core, id);
+            dynamic extendedObject = DynamicTypeCreator.GetSingletonClass(core, id);
             if (value != default) { extendedObject.Tag = value; }
             return extendedObject.Tag;
         }

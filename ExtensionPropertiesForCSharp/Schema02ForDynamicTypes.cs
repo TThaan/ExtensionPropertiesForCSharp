@@ -17,8 +17,8 @@ namespace ExtensionPropertiesForCSharp
     {
         public static Type typeOfGenericParameter;
         public Type TypeOfGenericParameter { get { return typeOfGenericParameter; } }
+        //An instance of Singleton01 here would spare me the effort to MakeGeneric on SingletonClass again?
     }
-
 
     class Singleton01<T> : BaseOfSingleton01    //, IExtendable<T>
     {
@@ -29,11 +29,11 @@ namespace ExtensionPropertiesForCSharp
         T[] cell;
         object tag;
 
-        public static Singleton01<T> Instance { get { return instance; } }
-        public T[] Cell { get { return cell; } }
+        //public static Singleton01<T> Instance { get { return instance; } }    //useless, since it can't be called with an interface
+        public T[] Cell { get { return cell; } }                                //needed?
         public object Tag { get { return tag; } set { tag = value; } }
 
-        public static ref T Extend(T source)
+        public static ref T GetInstance(T source)   //Can only be used with reflection thus can be resolved into constructor and Bind!
         {
             if (instance == null)
             {
