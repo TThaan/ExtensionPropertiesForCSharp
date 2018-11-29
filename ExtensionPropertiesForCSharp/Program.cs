@@ -1,31 +1,53 @@
 ﻿using System;
-using static ExtensionPropertiesForCSharp.DynamicTypeCreator;
+using static ExtensionPropertiesForCSharp.ExtensionCreator;
 
 namespace ExtensionPropertiesForCSharp
 {
+    class ExampleClass { public int x, y; }
+    struct ExampleStruct { public int z; }
+
+
     class Program
     {
         static void Main(string[] args)
         {
-            ref ExampleStruct sXT = ref ExtensionOf(new ExampleStruct() { z = 14 }, "sXT");
+            //extending the type ExampleStruct and giving it a name (id):
+
+            ref ExampleStruct sXT = ref ExtendIT(new ExampleStruct() { z = 14 }, "sXT");
+
+
+
+            //extending the type ExampleClass (after defining it) and giving it a name (id):
 
             ExampleClass eClass = new ExampleClass() { x = 10, y = 77 };
-            ref ExampleClass cXT = ref ExtensionOf(eClass, "cXT");
+            ref ExampleClass cXT = ref ExtendIT(eClass, "cXT");
 
-            ref int iXT = ref ExtensionOf(99);
+
+
+            //extending the type int32 with implicit conversion and no name:
+
+            ref int iXT = ref ExtendIT(99);
+
+
+            
+            //setting/getting Tag of the extended ExampleStruct with the help of a name:
 
             sXT.Tag("I´m a Tag.", "sXT");
             Console.WriteLine(sXT.Tag(id: "sXT"));
 
+
+
+            //setting/getting Tag of the extended ExampleStruct without help:
+
             sXT.Tag("I´m a new Tag.");
             Console.WriteLine(sXT.Tag());
 
-            //      Finally, not to forget, if you want your core to stay in sync with your reference 
-            //      you need to pass it as ref parameter. This way you can work with value types too.
+
+
+            //Working with the extended type as ref to keep the reference to the extension class:
 
             DoubleThis(ref sXT);
             Console.WriteLine(sXT.z);
-
             Console.ReadLine();
         }
 
@@ -33,11 +55,5 @@ namespace ExtensionPropertiesForCSharp
         {
             iXT.z *= 2;
         }
-
     }
-
-    class ExampleClass
-    { public int x, y; }
-    struct ExampleStruct
-    { public int z; }
 }
